@@ -4,12 +4,14 @@ import urllib2
 class Codechef:
 
     def __init__(self, user_names):
+        from time import sleep
         self.data = []
         self.defaultUrl = "https://codechef.com/users/"
         for name in user_names:
             print "Fetching data for %s ....." %(name)
             self.fetchData(name)
-        self.getData()
+            print "Sleeping for 1 sec"
+            sleep(1)
 
     def fetchData(self, name):
         self.data.append({name : urllib2.urlopen(self.defaultUrl + str(name))})
@@ -21,7 +23,6 @@ class Codechef:
         for index, value in enumerate(data):
             html = (value.values()[0]).read()
             ranks = self.collectRanks(html)
-            print ranks
             self.printRanks(value.keys()[0], ranks)
 
 
