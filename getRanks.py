@@ -9,9 +9,16 @@ class Codechef:
         self.defaultUrl = "https://codechef.com/users/"
         for name in user_names:
             print "Fetching data for %s ....." %(name)
-            self.fetchData(name)
-            print "Sleeping for 1 sec"
-            sleep(1)
+            try:
+                self.fetchData(name)
+                #print "Sleeping for 1 sec"
+                #sleep(1)
+            except urllib2.HTTPError:
+                print "Server Error for %s" %(name)
+                print "Will retry after 3 secs"
+                sleep(3)
+                print "Retrying ...." 
+                self.fetchData(name)
 
     def fetchData(self, name):
         self.data.append({name : urllib2.urlopen(self.defaultUrl + str(name))})
@@ -31,20 +38,35 @@ class Codechef:
         bsData = BeautifulSoup(html, "html.parser")
         # Since on codechef the ranks are surrounded by the special tag hx
         hxData = bsData.findAll("hx") 
+        #print "HX DATA  = ", hxData
+        #print  "Type of hx data " , type(hxData)
         ranks = []
         for i in hxData:
             temp = str(i.string)
-            if temp == 'NA' or temp == 'None':
+            if temp == 'NA' or temp == 'None' or temp == '' or temp == None:
                 temp = 'NA'
             ranks.append(temp)
+        #print "Ranks", ranks
         return ranks
 
     def printRanks(self, name, ranks):
+        
         print " ---------------RANKS FOR %s  are :------------" %(name) 
-        print "Long Contest -- %s | %s" %(ranks[0] , ranks[1])
-        print "Cook Off     -- %s | %s" %(ranks[2], ranks[3])
-        print "Lunch Time   -- %s | %s " %(ranks[4] , ranks[5])
-            
+
+        # Fix for the person who haven't attended a single contest yet
+        if len(ranks) == 3:
+            self.printEmptyRanks()
+        else:
+            print "Long Contest -- %s | %s" %(ranks[0] , ranks[1])
+            print "Cook Off     -- %s | %s" %(ranks[2], ranks[3])
+            print "Lunch Time   -- %s | %s " %(ranks[4] , ranks[5])
+
+
+    def printEmptyRanks(self):
+        print "Long Contest -- NA" 
+        print "Cook Off     -- NA" 
+        print "Lunch Time   -- NA"
+
     def getData(self):
         print self.data
 
